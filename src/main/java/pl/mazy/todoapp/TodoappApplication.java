@@ -16,17 +16,6 @@ import java.util.List;
 @EnableJpaRepositories(basePackages = "pl.mazy.todoapp.repository")
 @EntityScan("pl.mazy.todoapp.model")
 public class TodoappApplication {
-
-	private final EventRepo eR;
-
-	public TodoappApplication(EventRepo eR) {
-		this.eR = eR;
-	}
-
-	@GetMapping("/getEvents")
-	public List<Event> getEvents(){
-		return eR.findAll();
-	}
 	public static void main(String[] args) {
 		SpringApplication.run(TodoappApplication.class, args);
 	}
