@@ -1,13 +1,20 @@
 package pl.mazy.todoapp.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
 @Entity
 public class Event {
     @Id
+    @SequenceGenerator(
+            name = "event_id_seq",
+            sequenceName = "event_id_seq"
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "event_id_seq"
+    )
     private int id;
     private  int owner_id;
     private String name;
