@@ -5,7 +5,6 @@ import pl.mazy.todoapp.model.Event;
 import pl.mazy.todoapp.repository.EventRepo;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/events")
@@ -36,9 +35,7 @@ public class EventReq {
             Boolean checked,
             String color,
             Integer mainTask_id
-    ){
-
-    }
+    ){ }
 
 
     @PostMapping
