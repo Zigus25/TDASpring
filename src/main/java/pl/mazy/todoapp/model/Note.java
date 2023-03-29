@@ -15,24 +15,24 @@ public class Note {
             strategy = GenerationType.SEQUENCE,
             generator = "note_id_seq"
     )
-    private Integer id;
-    private Integer owner_id;
+    private Long id;
+    private Long owner_id;
     private String name;
     private String description;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getOwner_id() {
+    public Long getOwner_id() {
         return owner_id;
     }
 
-    public void setOwner_id(Integer owner_id) {
+    public void setOwner_id(Long owner_id) {
         this.owner_id = owner_id;
     }
 
@@ -55,7 +55,7 @@ public class Note {
     public Note() {
     }
 
-    public Note(Integer owner_id, String name, String description) {
+    public Note(Long owner_id, String name, String description) {
         this.owner_id = owner_id;
         this.name = name;
         this.description = description;

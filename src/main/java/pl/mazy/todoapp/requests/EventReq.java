@@ -23,7 +23,7 @@ public class EventReq {
     }
 
     record NewEventRequest(
-            Integer owner_id,
+            Long owner_id,
             String name,
             String description,
             Integer category_id,

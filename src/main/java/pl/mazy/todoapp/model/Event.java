@@ -15,8 +15,8 @@ public class Event {
             strategy = GenerationType.SEQUENCE,
             generator = "event_id_seq"
     )
-    private int id;
-    private  int owner_id;
+    private Long id;
+    private  Long owner_id;
     private String name;
     private String description;
     private int category_id;
@@ -29,19 +29,19 @@ public class Event {
     private String color;
     private int mainTask_id;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public int getOwner_id() {
+    public Long getOwner_id() {
         return owner_id;
     }
 
-    public void setOwner_id(int owner_id) {
+    public void setOwner_id(Long owner_id) {
         this.owner_id = owner_id;
     }
 
