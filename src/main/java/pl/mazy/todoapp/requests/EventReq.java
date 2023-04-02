@@ -22,6 +22,11 @@ public class EventReq {
         return eR.findAll();
     }
 
+//    @GetMapping("/id}/{cat}")
+//    public List<Event> getByIC(@PathVariable("id") Long oID,@PathVariable("cat") Long cat){
+//        return eR.findAllEBy_oID_Cat(oID,cat);
+//    }
+
     record NewEventRequest(
             Long owner_id,
             String name,
@@ -36,7 +41,6 @@ public class EventReq {
             String color,
             Integer mainTask_id
     ){ }
-
 
     @PostMapping
     public void addEvent(@RequestBody NewEventRequest req){

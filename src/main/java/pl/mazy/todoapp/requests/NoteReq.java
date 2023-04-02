@@ -21,7 +21,7 @@ public class NoteReq {
     }
 
     record newNoteReq(
-            Integer owner_id,
+            Long owner_id,
             String name,
             String description
     ){ }

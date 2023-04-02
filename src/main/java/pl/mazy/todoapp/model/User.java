@@ -1,85 +1,65 @@
 package pl.mazy.todoapp.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import pl.mazy.todoapp.enums.Role;
 
-import java.util.Objects;
+import java.util.Collection;
+import java.util.List;
 
-@Entity
-public class User {
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity(name = "users")
+public class User implements UserDetails {
     @Id
-    @SequenceGenerator(
-            name = "user_id_seq",
-            sequenceName = "user_id_seq"
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "user_id_seq"
-    )
+    @GeneratedValue
     private Long id;
     private String name;
+    private String eMail;
     private String passwd;
-    private Long aKey;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    public Long getId() {
-        return id;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPasswd() {
+    @Override
+    public String getPassword() {
         return passwd;
     }
 
-    public void setPasswd(String passwd) {
-        this.passwd = passwd;
-    }
-
-    public Long getaKey() {
-        return aKey;
-    }
-
-    public void setaKey(Long aKey) {
-        this.aKey = aKey;
-    }
-
-    public User() {}
-
-    public User(String name, String passwd, Long aKey) {
-        this.name = name;
-        this.passwd = passwd;
-        this.aKey = aKey;
+    @Override
+    public String getUsername() {
+        return eMail;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(passwd, user.passwd) && Objects.equals(aKey, user.aKey);
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id, name, passwd, aKey);
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
     @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", passwd='" + passwd + '\'' +
-                ", aKey=" + aKey +
-                '}';
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
