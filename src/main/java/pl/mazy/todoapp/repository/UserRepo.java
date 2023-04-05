@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface UserRepo extends JpaRepository<User,Long> {
 
     @Query("select u from users u where u.eMail = ?1")
-    Optional<User> findByUsername(String name);
+    Optional<User> findByEMail(String name);
 
 }

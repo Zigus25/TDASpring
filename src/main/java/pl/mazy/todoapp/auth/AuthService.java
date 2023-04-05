@@ -33,7 +33,7 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEMail(),request.getPasswd())
         );
-        var user = repo.findByUsername(request.getEMail()).orElseThrow();
+        var user = repo.findByEMail(request.getEMail()).orElseThrow();
         var token =jwtService.generateToken(user);
         return AuthResponse.builder().token(token).build();
     }
