@@ -20,7 +20,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request){
         var user = User.builder()
                 .name(request.getName())
-                .eMail(request.getEMail())
+                .eMail(request.getEmail())
                 .passwd(passwordEncoder.encode(request.getPasswd()))
                 .role(Role.USER)
                 .build();
@@ -31,9 +31,9 @@ public class AuthService {
 
     public AuthResponse authenticate(AuthRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEMail(),request.getPasswd())
+                new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPasswd())
         );
-        var user = repo.findByEMail(request.getEMail()).orElseThrow();
+        var user = repo.findByEMail(request.getEmail()).orElseThrow();
         var token =jwtService.generateToken(user);
         return AuthResponse.builder().token(token).build();
     }

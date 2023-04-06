@@ -1,5 +1,6 @@
 package pl.mazy.todoapp.requests;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import pl.mazy.todoapp.model.Event;
 import pl.mazy.todoapp.repository.EventRepo;
@@ -8,30 +9,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/events")
+@RequiredArgsConstructor
 public class EventReq {
-
-
     private final EventRepo eR;
 
-    public EventReq(EventRepo eR) {
-        this.eR = eR;
+    @GetMapping("/{oId}/{category}")
+    public List<Event> getEvents(@PathVariable("oId")Long oId,@PathVariable("category") Long category){
+        return eR.findTaskEBy_oID_Category(oId,category);
     }
-
-    @GetMapping
-    public List<Event> getEvents(){
-        return eR.findAll();
-    }
-
-//    @GetMapping("/id}/{cat}")
-//    public List<Event> getByIC(@PathVariable("id") Long oID,@PathVariable("cat") Long cat){
-//        return eR.findAllEBy_oID_Cat(oID,cat);
-//    }
 
     record NewEventRequest(
             Long owner_id,
             String name,
             String description,
-            Integer category_id,
+            Long category_id,
             String timeStart,
             String timeEnd,
             String dateStart,

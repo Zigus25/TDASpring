@@ -15,10 +15,10 @@ public class Event {
     @Id
     @GeneratedValue
     private Long id;
-    private  Long owner_id;
+    private Long owner_id;
     private String name;
     private String description;
-    private int category_id;
+    private Long category_id;
     private String timeStart;
     private String timeEnd;
     private String dateStart;
