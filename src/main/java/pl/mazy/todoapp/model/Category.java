@@ -1,6 +1,8 @@
 package pl.mazy.todoapp.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,14 +13,13 @@ import org.springframework.lang.NonNull;
 @Builder
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
-@Entity(name = "notes")
-public class Note {
+@Entity
+public class Category {
     @Id
     @GeneratedValue
     private Integer id;
     @NonNull
-    private Integer owner_id;
-    @NonNull
     private String name;
-    private String description;
+    @NonNull
+    private Integer ownerId;
 }

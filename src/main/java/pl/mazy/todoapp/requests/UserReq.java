@@ -18,6 +18,6 @@ public class UserReq {
 
     @PostMapping
     public User getID(@RequestBody IDReq req){
-        return uR.findByEMail(req.email).get();
+        return uR.findByEMail(req.email).orElseThrow();
     }
 }

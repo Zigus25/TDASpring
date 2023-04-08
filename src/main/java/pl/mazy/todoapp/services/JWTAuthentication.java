@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pl.mazy.todoapp.repository.UserRepo;
 
 import java.io.IOException;
 
@@ -22,21 +23,22 @@ public class JWTAuthentication extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final UserRepo uR;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
         final String jwtToken;
-        final String userEMail;
+        final String uId;
         if (authHeader == null||!authHeader.startsWith("Bearer ")){
             filterChain.doFilter(request,response);
             return;
         }
         jwtToken = authHeader.substring(7);
-        userEMail = jwtService.extractUsername(jwtToken);
-        if (userEMail != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEMail);
-            if (jwtService.isValid(jwtToken,userDetails)){
+        uId = jwtService.extractUsername(jwtToken);
+        if (uId != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(uId);
+            if (jwtService.isValid(jwtToken,uR.findUserById(Integer.parseInt(uId)).orElseThrow())){
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                   userDetails,
                   null,
