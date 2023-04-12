@@ -23,7 +23,7 @@ public interface EventRepo extends JpaRepository<Event,Integer> {
     @Query("select e.name from events e where e.owner_id = ?1 and  e.mainTask_id = ?2")
     List<String> findNamesByMainId(Integer oId,Integer id);
 
-    @Query("select e from events e where e.id = ?1 and e.type = true")
+    @Query("select e from events e where e.id = ?1")
     Event findTaskById(Integer id);
     @Query("select e from events e where e.category_id =?1 and e.type = true")
     List<Event> findTaskEByCategory(Integer cat);
@@ -46,6 +46,7 @@ public interface EventRepo extends JpaRepository<Event,Integer> {
 
     //delete
     @Modifying
+    @Transactional
     @Query("delete events where category_id = ?1")
     void deleteAllByCategory_id(Integer id);
 

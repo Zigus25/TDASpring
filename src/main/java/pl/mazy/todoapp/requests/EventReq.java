@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import pl.mazy.todoapp.model.Event;
+import pl.mazy.todoapp.repository.CategoryRepo;
 import pl.mazy.todoapp.repository.EventRepo;
 import pl.mazy.todoapp.services.JwtService;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventReq {
     private final EventRepo eR;
+    private final CategoryRepo cR;
     private final JwtService jwtService;
 
     record NewEventRequest(
@@ -84,25 +86,28 @@ public class EventReq {
     //both
     @PostMapping
     public void addEvent(@NonNull HttpServletRequest request,@RequestBody NewEventRequest req){
-        Event ev;
-        if (jwtService.extractID(request).equals(eR.findEventById(req.id).getOwner_id())&&req.id!=null){
-            ev = eR.findEventById(req.id);
-        }else {
-            ev = new Event();
-            ev.setOwner_id(jwtService.extractID(request));
+        var id = jwtService.extractID(request);
+        if (cR.findCategoryById(req.category_id).getOwnerId().equals(id)) {
+            Event ev;
+            if (id.equals(eR.findEventById(req.id).getOwner_id()) && req.id != null) {
+                ev = eR.findEventById(req.id);
+            } else {
+                ev = new Event();
+                ev.setOwner_id(jwtService.extractID(request));
+            }
+            ev.setName(req.name);
+            ev.setDescription(req.description);
+            ev.setCategory_id(req.category_id);
+            ev.setTimeStart(req.timeStart);
+            ev.setTimeEnd(req.timeEnd);
+            ev.setDateEnd(req.dateEnd);
+            ev.setDateStart(req.dateStart);
+            ev.setType(req.type);
+            ev.setChecked(req.checked);
+            ev.setColor(req.color);
+            ev.setMainTask_id(req.mainTask_id);
+            eR.save(ev);
         }
-        ev.setName(req.name);
-        ev.setDescription(req.description);
-        ev.setCategory_id(req.category_id);
-        ev.setTimeStart(req.timeStart);
-        ev.setTimeEnd(req.timeEnd);
-        ev.setDateEnd(req.dateEnd);
-        ev.setDateStart(req.dateStart);
-        ev.setType(req.type);
-        ev.setChecked(req.checked);
-        ev.setColor(req.color);
-        ev.setMainTask_id(req.mainTask_id);
-        eR.save(ev);
     }
 
     @DeleteMapping("{eventId}")

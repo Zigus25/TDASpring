@@ -34,7 +34,7 @@ public class CategoryReq {
 
     @DeleteMapping("/{id}")
     public void deleteCategory(@NonNull HttpServletRequest request, @PathVariable Integer id){
-        if (cR.findCategoryById(id).getOwnerId()==Integer.parseInt(jwtService.extractID(request).toString())){
+        if (cR.findCategoryById(id).getOwnerId().equals(jwtService.extractID(request))){
             eR.deleteAllByCategory_id(id);
             cR.deleteById(id);
         }

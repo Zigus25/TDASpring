@@ -10,7 +10,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.mazy.todoapp.enums.Role;
+import pl.mazy.todoapp.model.Category;
 import pl.mazy.todoapp.model.User;
+import pl.mazy.todoapp.repository.CategoryRepo;
 import pl.mazy.todoapp.repository.UserRepo;
 import pl.mazy.todoapp.services.JwtService;
 import pl.mazy.todoapp.token.Token;
@@ -24,6 +26,7 @@ import java.io.IOException;
 public class AuthService {
     private final UserRepo repo;
     private final TokenRepo tR;
+    private final CategoryRepo cR;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -34,7 +37,11 @@ public class AuthService {
                 .passwd(passwordEncoder.encode(request.getPasswd()))
                 .role(Role.USER)
                 .build();
-        repo.save(user);
+        var sUser = repo.save(user);
+        Category cat = new Category();
+        cat.setOwnerId(sUser.getId());
+        cat.setName("Main");
+        cR.save(cat);
         var token =jwtService.generateToken(user);
         return AuthResponse.builder().accessToken(token).build();
     }

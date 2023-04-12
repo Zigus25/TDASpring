@@ -13,7 +13,7 @@ import org.springframework.lang.NonNull;
 @Builder
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
-@Entity
+@Entity(name = "category")
 public class Category {
     @Id
     @GeneratedValue
