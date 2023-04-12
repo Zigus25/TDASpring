@@ -11,9 +11,6 @@ import java.util.List;
 public interface EventRepo extends JpaRepository<Event,Integer> {
 
     ///select
-    @Query("select max(d.dateEnd) from (select e from events e  where e.dateStart >= ?2 and e.dateEnd >= ?2 and e.owner_id = ?1 order by e.dateStart,e.timeStart) d")
-    String findMaxDateByOID(Integer oId,String date);
-
     @Query("select e from events e  where e.dateStart >= ?2 and e.dateEnd >= ?2 and e.owner_id = ?1 order by e.dateStart,e.timeStart")
     List<Event> findEventsBetweenDates(Integer oId,String date);
 

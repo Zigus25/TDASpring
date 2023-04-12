@@ -23,11 +23,6 @@ public class NoteReq {
     }
 
     record newNoteReq(
-            String name,
-            String description
-    ){ }
-
-    record updateNoteReq(
             Integer id,
             String name,
             String description
@@ -35,21 +30,16 @@ public class NoteReq {
 
     @PostMapping
     public void addNote(@NonNull HttpServletRequest request,@RequestBody newNoteReq req){
-        Note nt = new Note();
-        nt.setOwner_id(jwtService.extractID(request));
+        Note nt;
+        if (jwtService.extractID(request).equals(nR.findById(req.id).orElseThrow().getOwner_id())&&req.id!=null){
+            nt = nR.findById(req.id).orElseThrow();
+        } else {
+            nt = new Note();
+            nt.setOwner_id(jwtService.extractID(request));
+        }
         nt.setName(req.name);
         nt.setDescription(req.description);
         nR.save(nt);
-    }
-
-    @PostMapping
-    public void UpdateNote(@NonNull HttpServletRequest request,@RequestBody updateNoteReq req){
-        if (jwtService.extractID(request).equals(nR.findById(req.id).orElseThrow().getOwner_id())) {
-            Note nt = nR.findById(req.id).orElseThrow();
-            nt.setName(req.name);
-            nt.setDescription(req.description);
-            nR.save(nt);
-        }
     }
 
     @DeleteMapping("{noteId}")

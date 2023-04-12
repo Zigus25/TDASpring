@@ -18,19 +18,6 @@ public class EventReq {
     private final JwtService jwtService;
 
     record NewEventRequest(
-            String name,
-            String description,
-            Integer category_id,
-            String timeStart,
-            String timeEnd,
-            String dateStart,
-            String dateEnd,
-            Boolean type,
-            Boolean checked,
-            String color,
-            Integer mainTask_id
-    ){ }
-    record UpdateEventRequest(
             Integer id,
             String name,
             String description,
@@ -81,7 +68,7 @@ public class EventReq {
     //events
     @GetMapping("/d={date}")
     public List<Event> getBetween(@NonNull HttpServletRequest request, @PathVariable String date){
-        return eR.findEventsBetweenDates(jwtService.extractID(request),eR.findMaxDateByOID(jwtService.extractID(request),date));
+        return eR.findEventsBetweenDates(jwtService.extractID(request),date);
     }
 
     @GetMapping("/m={mId}")
@@ -97,8 +84,13 @@ public class EventReq {
     //both
     @PostMapping
     public void addEvent(@NonNull HttpServletRequest request,@RequestBody NewEventRequest req){
-        Event ev = new Event();
-        ev.setOwner_id(jwtService.extractID(request));
+        Event ev;
+        if (jwtService.extractID(request).equals(eR.findEventById(req.id).getOwner_id())&&req.id!=null){
+            ev = eR.findEventById(req.id);
+        }else {
+            ev = new Event();
+            ev.setOwner_id(jwtService.extractID(request));
+        }
         ev.setName(req.name);
         ev.setDescription(req.description);
         ev.setCategory_id(req.category_id);
@@ -111,24 +103,6 @@ public class EventReq {
         ev.setColor(req.color);
         ev.setMainTask_id(req.mainTask_id);
         eR.save(ev);
-    }
-
-    @PostMapping
-    public void updateEvent(@NonNull HttpServletRequest request,@RequestBody UpdateEventRequest req){
-        if (jwtService.extractID(request).equals(eR.findEventById(req.id).getOwner_id())) {
-            Event ev = eR.findEventById(req.id);
-            ev.setName(req.name);
-            ev.setDescription(req.description);
-            ev.setCategory_id(req.category_id);
-            ev.setTimeStart(req.timeStart);
-            ev.setTimeEnd(req.timeEnd);
-            ev.setDateEnd(req.dateEnd);
-            ev.setDateStart(req.dateStart);
-            ev.setType(req.type);
-            ev.setColor(req.color);
-            ev.setMainTask_id(req.mainTask_id);
-            eR.save(ev);
-        }
     }
 
     @DeleteMapping("{eventId}")
