@@ -28,7 +28,7 @@ public class CategoryReq {
     public void  addCategory(@NonNull HttpServletRequest request, @PathVariable String name){
         Category cat = new Category();
         cat.setName(name);
-        cat.setOwnerId(Integer.parseInt(jwtService.extractID(request).toString()));
+        cat.setOwnerId(jwtService.extractID(request));
         cR.save(cat);
     }
 

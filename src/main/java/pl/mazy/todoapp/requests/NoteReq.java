@@ -1,5 +1,6 @@
 package pl.mazy.todoapp.requests;
 
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class NoteReq {
     }
 
     record newNoteReq(
-            Integer id,
+            @Nullable Integer id,
             String name,
             String description
     ){ }
@@ -31,8 +32,12 @@ public class NoteReq {
     @PostMapping
     public void addNote(@NonNull HttpServletRequest request,@RequestBody newNoteReq req){
         Note nt;
-        if (jwtService.extractID(request).equals(nR.findById(req.id).orElseThrow().getOwner_id())&&req.id!=null){
-            nt = nR.findById(req.id).orElseThrow();
+        if (req.id!=null){
+            if (jwtService.extractID(request).equals(nR.findById(req.id).orElseThrow().getOwner_id())){
+                nt = nR.findById(req.id).orElseThrow();
+            } else {
+                return;
+            }
         } else {
             nt = new Note();
             nt.setOwner_id(jwtService.extractID(request));

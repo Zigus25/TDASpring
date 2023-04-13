@@ -1,5 +1,6 @@
 package pl.mazy.todoapp.requests;
 
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class EventReq {
     private final JwtService jwtService;
 
     record NewEventRequest(
-            Integer id,
+            @Nullable Integer id,
             String name,
             String description,
             Integer category_id,
@@ -36,13 +37,21 @@ public class EventReq {
 
     //tasks
     @GetMapping("/{category}")
-    public List<Event> getTasksInCategory(@PathVariable Integer category){
-        return eR.findTaskEByCategory(category);
+    public List<Event> getTasksInCategory(@NonNull HttpServletRequest request, @PathVariable Integer category) {
+        if (jwtService.extractID(request).equals(cR.findCategoryById(category).getOwnerId())) {
+            return eR.findTaskEByCategory(category);
+        } else{
+            return null;
+        }
     }
 
     @GetMapping("/i={id}")
-    public Event getEventByID(@PathVariable Integer id){
-        return eR.findTaskById(id);
+    public Event getEventByID(@NonNull HttpServletRequest request, @PathVariable Integer id){
+        if (eR.findTaskById(id).getOwner_id().equals(jwtService.extractID(request))){
+            return eR.findTaskById(id);
+        } else {
+            return null;
+        }
     }
 
     @PostMapping("/t={id}")
@@ -89,9 +98,13 @@ public class EventReq {
         var id = jwtService.extractID(request);
         if (cR.findCategoryById(req.category_id).getOwnerId().equals(id)) {
             Event ev;
-            if (id.equals(eR.findEventById(req.id).getOwner_id()) && req.id != null) {
-                ev = eR.findEventById(req.id);
-            } else {
+            if (req.id != null){
+                if (id.equals(eR.findEventById(req.id).getOwner_id())) {
+                    ev = eR.findEventById(req.id);
+                } else {
+                    return;
+                }
+            }else {
                 ev = new Event();
                 ev.setOwner_id(jwtService.extractID(request));
             }

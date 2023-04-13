@@ -43,7 +43,9 @@ public class AuthService {
         cat.setName("Main");
         cR.save(cat);
         var token =jwtService.generateToken(user);
-        return AuthResponse.builder().accessToken(token).build();
+        var refreshToken = jwtService.generateRefreshToken(user);
+        saveUserToken(sUser,token);
+        return AuthResponse.builder().accessToken(token).refreshToken(refreshToken).build();
     }
 
     public AuthResponse authenticate(AuthRequest request) {
@@ -52,7 +54,10 @@ public class AuthService {
         );
         var user = repo.findByEMail(request.getEmail()).orElseThrow();
         var token =jwtService.generateToken(user);
-        return AuthResponse.builder().accessToken(token).build();
+        var refreshToken = jwtService.generateRefreshToken(user);
+        revokeAllUserTokens(user);
+        saveUserToken(user,token);
+        return AuthResponse.builder().accessToken(token).refreshToken(refreshToken).build();
     }
 
     private void saveUserToken(User user, String jwtToken) {
@@ -67,7 +72,7 @@ public class AuthService {
     }
 
     private void revokeAllUserTokens(User user) {
-        var validUserTokens = tR.findAllValidTokenByUser(Integer.parseInt(user.getId().toString()));
+        var validUserTokens = tR.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {

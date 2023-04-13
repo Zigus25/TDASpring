@@ -6,8 +6,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.mazy.todoapp.model.User;
+import pl.mazy.todoapp.token.TokenRepo;
 
 import java.security.Key;
 import java.util.*;
@@ -15,8 +17,9 @@ import java.util.function.Function;
 
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
-
+    private final TokenRepo tR;
     private static final  String secKey = "327235753778214125442A472D4B6150645367566B59703373367639792F423F";
     public String extractUsername(String jwtToken) {
         return extractClaim(jwtToken,Claims::getSubject);
@@ -44,14 +47,34 @@ public class JwtService {
                 .setClaims(extractClaims)
                 .setSubject(userDetails.getId().toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+ 1000 * 60 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis()+ 1000 * 60 * 60 * 24 * 7))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(
+            User userDetails
+    ) {
+        return buildToken(new HashMap<>(), userDetails);
+    }
+
+    private String buildToken(
+            Map<String, Object> extraClaims,
+            User userDetails
+    ) {
+        return Jwts
+                .builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + (long) 604800000))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public boolean isValid(String token,User userDetails){
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getId().toString())) && !isTokenExpired(token);
+        return (username.equals(userDetails.getId().toString())) && !isTokenExpired(token) && !tR.findByToken(token).orElseThrow().revoked;
     }
 
     private boolean isTokenExpired(String token) {
