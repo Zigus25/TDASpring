@@ -32,6 +32,18 @@ public class CategoryReq {
         cR.save(cat);
     }
 
+    @PostMapping("/cID={cid}/sID={sid}")
+    public void shareCategory(@NonNull HttpServletRequest request,@PathVariable Integer cid, @PathVariable Integer sid){
+        Category cat = cR.findCategoryById(cid);
+        if (jwtService.extractID(request).equals(cat.getOwnerId())) {
+            Category category = new Category();
+            category.setOwnerId(sid);
+            category.setName(cat.getName());
+            category.setShareId(cat.getId());
+            cR.save(category);
+        }
+    }
+
     @DeleteMapping("/{id}")
     public void deleteCategory(@NonNull HttpServletRequest request, @PathVariable Integer id){
         if (cR.findCategoryById(id).getOwnerId().equals(jwtService.extractID(request))){

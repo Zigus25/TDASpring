@@ -27,9 +27,7 @@ public class Event {
     private String timeEnd;
     private String dateStart;
     private String dateEnd;
-    @NonNull
     private boolean type;
-    @NonNull
     private boolean checked;
     @NonNull
     private String color;

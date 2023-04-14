@@ -22,4 +22,5 @@ public class Category {
     private String name;
     @NonNull
     private Integer ownerId;
+    private Integer shareId;
 }
