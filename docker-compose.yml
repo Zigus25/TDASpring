@@ -6,7 +6,7 @@ services:
     container_name: tdapostdb
     image: postgres:latest
     environment:
-      POSTGRES_USER: admin
+      POSTGRES_USER: root
       POSTGRES_PASSWORD: passwd
       PGDATA: /data/postgres
     volumes:
