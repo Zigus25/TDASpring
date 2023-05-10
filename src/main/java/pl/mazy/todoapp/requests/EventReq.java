@@ -32,7 +32,8 @@ public class EventReq {
             Boolean type,
             Boolean checked,
             String color,
-            Integer mainTask_id
+            Integer mainTask_id,
+            List<NewEventRequest> subList
     ){ }
 
     //tasks

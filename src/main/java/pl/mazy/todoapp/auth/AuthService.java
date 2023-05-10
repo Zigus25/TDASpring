@@ -38,7 +38,7 @@ public class AuthService {
         cR.save(cat);
         var token =jwtService.generateToken(user);
         saveUserToken(sUser,token);
-        return AuthResponse.builder().accessToken(token).build();
+        return AuthResponse.builder().accessToken(token).login(request.getName()).build();
     }
 
     public AuthResponse authenticate(AuthRequest request) {
@@ -49,7 +49,7 @@ public class AuthService {
         var token =jwtService.generateToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user,token);
-        return AuthResponse.builder().accessToken(token).build();
+        return AuthResponse.builder().accessToken(token).login(user.getName()).build();
     }
 
     private void saveUserToken(User user, String jwtToken) {
