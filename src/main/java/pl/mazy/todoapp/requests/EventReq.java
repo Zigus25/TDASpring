@@ -146,7 +146,10 @@ public class EventReq {
     @DeleteMapping("{eventId}")
     public void deleteEvent(@NonNull HttpServletRequest request,@PathVariable("eventId")Integer eId){
         if (eR.findEventById(eId).getOwner_id().equals(jwtService.extractID(request))) {
-            eR.deleteByMainTask_id(eId);
+            var ev = eR.findEventsByMainID(jwtService.extractID(request),eId);
+            for (Event e: ev) {
+                deleteEvent(request,e.getId());
+            }
             eR.deleteById(eId);
         }
     }
