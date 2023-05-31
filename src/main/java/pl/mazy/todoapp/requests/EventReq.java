@@ -23,6 +23,29 @@ public class EventReq {
     private final CategoryRepo cR;
     private final JwtService jwtService;
 
+    private List<Events> toEvents(List<Event> events){
+        List<Events> list = new ArrayList<>();
+        for (Event e: events) {
+            list.add(new Events(
+                    e.getId(),
+                    e.getOwner_id(),
+                    e.getName(),
+                    e.getDescription(),
+                    e.getCategory_id(),
+                    e.getTimeStart(),
+                    e.getTimeEnd(),
+                    e.getDateStart(),
+                    e.getDateEnd(),
+                    e.isType(),
+                    e.isChecked(),
+                    e.getColor(),
+                    e.getMainTask_id(),
+                    new ArrayList<>()
+            ));
+        }
+        return consolidate(list);
+    }
+
     record NewEventRequest(
             @Nullable Integer id,
             String name,
@@ -43,27 +66,7 @@ public class EventReq {
     @GetMapping("/{category}")
     public List<Events> getTasksInCategory(@NonNull HttpServletRequest request, @PathVariable Integer category) {
         if (jwtService.extractID(request).equals(cR.findCategoryById(category).getOwnerId())) {
-            List<Event> events = eR.findTaskEByCategory(category);
-            List<Events> list = new ArrayList<>();
-            for (Event e: events) {
-                list.add(new Events(
-                    e.getId(),
-                    e.getOwner_id(),
-                    e.getName(),
-                    e.getDescription(),
-                    e.getCategory_id(),
-                    e.getTimeStart(),
-                    e.getTimeEnd(),
-                    e.getDateStart(),
-                    e.getDateEnd(),
-                    e.isType(),
-                    e.isChecked(),
-                    e.getColor(),
-                    e.getMainTask_id(),
-                    new ArrayList<>()
-                ));
-            }
-            return consolidate(list);
+            return toEvents(eR.findTaskEByCategory(category));
         } else{
             return null;
         }
@@ -91,8 +94,8 @@ public class EventReq {
 
     //events
     @GetMapping("/d={date}")
-    public List<Event> getBetween(@NonNull HttpServletRequest request, @PathVariable String date){
-        return eR.findEventsBetweenDates(jwtService.extractID(request),date);
+    public List<Events> getBetween(@NonNull HttpServletRequest request, @PathVariable String date){
+        return toEvents(eR.findEventsBetweenDates(jwtService.extractID(request),date));
     }
 
     //both
