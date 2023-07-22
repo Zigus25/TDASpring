@@ -9,4 +9,6 @@ public interface CategoryRepo extends JpaRepository<Category,Integer> {
     List<Category> findCategoriesByOwnerId(Integer ownerId);
 
     Category findCategoryById(Integer id);
+
+    Category findCategoryByShareIdAndOwnerId(Integer id,Integer owner);
 }

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import pl.mazy.todoapp.model.Category;
 import pl.mazy.todoapp.model.Event;
 import pl.mazy.todoapp.model.Events;
 import pl.mazy.todoapp.repository.CategoryRepo;
@@ -43,27 +44,10 @@ public class EventReq {
     @GetMapping("/{category}")
     public List<Events> getTasksInCategory(@NonNull HttpServletRequest request, @PathVariable Integer category) {
         if (jwtService.extractID(request).equals(cR.findCategoryById(category).getOwnerId())) {
-            List<Event> events = eR.findTaskEByCategory(category);
-            List<Events> list = new ArrayList<>();
-            for (Event e: events) {
-                list.add(new Events(
-                    e.getId(),
-                    e.getOwner_id(),
-                    e.getName(),
-                    e.getDescription(),
-                    e.getCategory_id(),
-                    e.getTimeStart(),
-                    e.getTimeEnd(),
-                    e.getDateStart(),
-                    e.getDateEnd(),
-                    e.isType(),
-                    e.isChecked(),
-                    e.getColor(),
-                    e.getMainTask_id(),
-                    new ArrayList<>()
-                ));
-            }
-            return consolidate(list);
+            Category cat = cR.findCategoryById(category);
+            Integer cid;
+            if (cat.getShareId()==null){cid=cat.getId();}else{cid=cat.getShareId();}
+            return consolidate(convert(eR.findTaskEByCategory(cid)));
         } else{
             return null;
         }
@@ -80,7 +64,8 @@ public class EventReq {
 
     @PostMapping("/t")
     public void toggleTask(@NonNull HttpServletRequest request, @RequestBody Events ev){
-        if (ev.getOwner_id().equals(jwtService.extractID(request))) {
+        Integer id = jwtService.extractID(request);
+        if (ev.getOwner_id().equals(id)||cR.findCategoryByShareIdAndOwnerId(ev.getCategory_id(),id).getOwnerId().equals(id)) {
             eR.toggleState(!ev.isChecked(),ev.getId());
             if (!ev.getSubList().isEmpty()){
                 toggleCheckSub(ev);
@@ -91,8 +76,8 @@ public class EventReq {
 
     //events
     @GetMapping("/d={date}")
-    public List<Event> getBetween(@NonNull HttpServletRequest request, @PathVariable String date){
-        return eR.findEventsBetweenDates(jwtService.extractID(request),date);
+    public List<Events> getBetween(@NonNull HttpServletRequest request, @PathVariable String date){
+        return convert(eR.findEventsBetweenDates(jwtService.extractID(request),date));
     }
 
     //both
@@ -100,17 +85,13 @@ public class EventReq {
     public void addEvent(@NonNull HttpServletRequest request,@RequestBody NewEventRequest req){
         var id = jwtService.extractID(request);
         List<String> sublistL;
-        if (cR.findCategoryById(req.category_id).getOwnerId().equals(id)) {
+        if (cR.findCategoryById(req.category_id).getOwnerId().equals(id)||cR.findCategoryByShareIdAndOwnerId(req.category_id,id).getOwnerId().equals(id)) {
             Event ev;
             if (req.id != null){
                 sublistL = new ArrayList<>(eR.findNamesByMainId(jwtService.extractID(request),req.id));
-                if (id.equals(eR.findEventById(req.id).getOwner_id())) {
-                    ev = eR.findEventById(req.id);
-                    ev.setChecked(false);
-                    checkBack(req.mainTask_id);
-                } else {
-                    return;
-                }
+                ev = eR.findEventById(req.id);
+                ev.setChecked(false);
+                checkBack(req.mainTask_id);
             }else {
                 ev = new Event();
                 sublistL = new ArrayList<>();
@@ -145,10 +126,13 @@ public class EventReq {
 
     @DeleteMapping("{eventId}")
     public void deleteEvent(@NonNull HttpServletRequest request,@PathVariable("eventId")Integer eId){
-        if (eR.findEventById(eId).getOwner_id().equals(jwtService.extractID(request))) {
-            var ev = eR.findEventsByMainID(jwtService.extractID(request),eId);
-            for (Event e: ev) {
-                deleteEvent(request,e.getId());
+        Event e = eR.findEventById(eId);
+        Integer id = jwtService.extractID(request);
+        Category ccr = cR.findCategoryByShareIdAndOwnerId(e.getCategory_id(),e.getOwner_id());
+        if (e.getOwner_id().equals(id)||cR.findCategoryByShareIdAndOwnerId(e.getCategory_id(),id).getOwnerId().equals(id)||cR.findCategoryById(ccr.getShareId()).getOwnerId().equals(id)) {
+            var ev = eR.findEventsByMainID(eId);
+            for (Event eve: ev) {
+                deleteEvent(request,eve.getId());
             }
             eR.deleteById(eId);
         }
@@ -168,6 +152,29 @@ public class EventReq {
             }
         }
         return list.stream().filter( e->e.getMainTask_id() == null ).toList();
+    }
+
+    private List<Events> convert(List<Event> events){
+        List<Events> list = new ArrayList<>();
+        for (Event e: events) {
+            list.add(new Events(
+                    e.getId(),
+                    e.getOwner_id(),
+                    e.getName(),
+                    e.getDescription(),
+                    e.getCategory_id(),
+                    e.getTimeStart(),
+                    e.getTimeEnd(),
+                    e.getDateStart(),
+                    e.getDateEnd(),
+                    e.isType(),
+                    e.isChecked(),
+                    e.getColor(),
+                    e.getMainTask_id(),
+                    new ArrayList<>()
+            ));
+        }
+        return list;
     }
 
     private void addSubEvent(String name,Integer cat,String color, Integer id, Integer oId){

@@ -14,8 +14,8 @@ public interface EventRepo extends JpaRepository<Event,Integer> {
     @Query("select e from events e  where e.dateStart >= ?2 and e.dateEnd >= ?2 and e.owner_id = ?1 order by e.dateStart,e.timeStart")
     List<Event> findEventsBetweenDates(Integer oId,String date);
 
-    @Query("select e from events e where e.owner_id = ?1 and e.mainTask_id = ?2")
-    List<Event> findEventsByMainID(Integer oId, Integer mId);
+    @Query("select e from events e where e.mainTask_id = ?1")
+    List<Event> findEventsByMainID(Integer mId);
 
     @Query("select e from events e where e.id = ?1")
     Event findEventById(Integer id);
@@ -25,7 +25,7 @@ public interface EventRepo extends JpaRepository<Event,Integer> {
 
     @Query("select e from events e where e.id = ?1")
     Event findTaskById(Integer id);
-    @Query("select e from events e where e.category_id =?1 and e.type = true")
+    @Query("select e from events e where e.category_id =?1 and e.type = true order by e.id desc")
     List<Event> findTaskEByCategory(Integer cat);
 
     //Update
