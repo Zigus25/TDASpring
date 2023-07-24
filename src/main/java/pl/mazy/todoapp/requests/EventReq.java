@@ -65,7 +65,13 @@ public class EventReq {
     @PostMapping("/t")
     public void toggleTask(@NonNull HttpServletRequest request, @RequestBody Events ev){
         Integer id = jwtService.extractID(request);
-        if (ev.getOwner_id().equals(id)||cR.findCategoryByShareIdAndOwnerId(ev.getCategory_id(),id).getOwnerId().equals(id)) {
+        Category ccr = cR.findCategoryByShareIdAndOwnerId(ev.getCategory_id(),id);
+        int coid= -1;
+        if(ccr!=null){coid = ccr.getOwnerId();}
+        Category cr = cR.findCategoryById(ev.getCategory_id());
+        int oid= -1;
+        if(cr!=null){oid = cr.getOwnerId();}
+        if (ev.getOwner_id().equals(id)||coid ==id||oid==id) {
             eR.toggleState(!ev.isChecked(),ev.getId());
             if (!ev.getSubList().isEmpty()){
                 toggleCheckSub(ev);
@@ -128,8 +134,16 @@ public class EventReq {
     public void deleteEvent(@NonNull HttpServletRequest request,@PathVariable("eventId")Integer eId){
         Event e = eR.findEventById(eId);
         Integer id = jwtService.extractID(request);
-        Category ccr = cR.findCategoryByShareIdAndOwnerId(e.getCategory_id(),e.getOwner_id());
-        if (e.getOwner_id().equals(id)||cR.findCategoryByShareIdAndOwnerId(e.getCategory_id(),id).getOwnerId().equals(id)||cR.findCategoryById(ccr.getShareId()).getOwnerId().equals(id)) {
+        Category cr = cR.findCategoryById(e.getCategory_id());
+        int coid = -1;
+        if(cr!=null){coid = cr.getOwnerId();}
+        Category cSd = cR.findCategoryByShareIdAndOwnerId(e.getCategory_id(),id);
+        int csdi = -1;
+        if (cSd!=null){
+            csdi = cSd.getOwnerId();
+        }
+        System.out.println(e+" "+ id+" "+coid+" "+cr+" "+csdi+" "+cSd);
+        if (e.getOwner_id().equals(id)||csdi==id||coid==id) {
             var ev = eR.findEventsByMainID(eId);
             for (Event eve: ev) {
                 deleteEvent(request,eve.getId());
