@@ -24,6 +24,29 @@ public class EventReq {
     private final CategoryRepo cR;
     private final JwtService jwtService;
 
+    private List<Events> toEvents(List<Event> events){
+        List<Events> list = new ArrayList<>();
+        for (Event e: events) {
+            list.add(new Events(
+                    e.getId(),
+                    e.getOwner_id(),
+                    e.getName(),
+                    e.getDescription(),
+                    e.getCategory_id(),
+                    e.getTimeStart(),
+                    e.getTimeEnd(),
+                    e.getDateStart(),
+                    e.getDateEnd(),
+                    e.isType(),
+                    e.isChecked(),
+                    e.getColor(),
+                    e.getMainTask_id(),
+                    new ArrayList<>()
+            ));
+        }
+        return consolidate(list);
+    }
+
     record NewEventRequest(
             @Nullable Integer id,
             String name,
