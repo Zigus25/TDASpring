@@ -20,8 +20,8 @@ public interface EventRepo extends JpaRepository<Event,Integer> {
     @Query("select e from events e where e.id = ?1")
     Event findEventById(Integer id);
 
-    @Query("select e.name from events e where e.owner_id = ?1 and  e.mainTask_id = ?2")
-    List<String> findNamesByMainId(Integer oId,Integer id);
+    @Query("select e.name from events e where e.mainTask_id = ?1")
+    List<String> findNamesByMainId(Integer id);
 
     @Query("select e from events e where e.id = ?1")
     Event findTaskById(Integer id);

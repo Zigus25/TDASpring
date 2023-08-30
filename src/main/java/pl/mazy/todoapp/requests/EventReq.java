@@ -80,6 +80,21 @@ public class EventReq {
         }
     }
 
+    @PostMapping("/uA")
+    public void unmarkAll(@NonNull HttpServletRequest request, @RequestBody Events ev){
+        Integer id = jwtService.extractID(request);
+        Category ccr = cR.findCategoryByShareIdAndOwnerId(ev.getCategory_id(),id);
+        int coid= -1;
+        if(ccr!=null){coid = ccr.getOwnerId();}
+        Category cr = cR.findCategoryById(ev.getCategory_id());
+        int oid= -1;
+        if(cr!=null){oid = cr.getOwnerId();}
+        if (ev.getOwner_id().equals(id)||coid ==id||oid==id) {
+            falseCheckSub(ev);
+        }
+
+    }
+
     //events
     @GetMapping("/d={date}")
     public List<Events> getBetween(@NonNull HttpServletRequest request, @PathVariable String date){
@@ -94,7 +109,7 @@ public class EventReq {
         if (cR.findCategoryById(req.category_id).getOwnerId().equals(id)||cR.findCategoryByShareIdAndOwnerId(req.category_id,id).getOwnerId().equals(id)) {
             Event ev;
             if (req.id != null){
-                sublistL = new ArrayList<>(eR.findNamesByMainId(jwtService.extractID(request),req.id));
+                sublistL = new ArrayList<>(eR.findNamesByMainId(req.id));
                 ev = eR.findEventById(req.id);
                 ev.setChecked(false);
                 checkBack(req.mainTask_id);
@@ -115,8 +130,10 @@ public class EventReq {
             ev.setColor(req.color);
             ev.setMainTask_id(req.mainTask_id);
             var evs = eR.save(ev);
-            for (int i = sublistL.size();i<req.subList.size();i++){
-                addSubEvent(req.subList.get(i),evs.getCategory_id(),evs.getColor(),evs.getId(),id);
+            if (sublistL.size()<req.subList.size()) {
+                for (int i = sublistL.size(); i < req.subList.size(); i++) {
+                    addSubEvent(req.subList.get(i), evs.getCategory_id(), evs.getColor(), evs.getId(), id);
+                }
             }
         }
     }
@@ -213,6 +230,15 @@ public class EventReq {
         if (!ev.getSubList().isEmpty()){
             for (Events e : ev.getSubList()){
                 toggleCheckSub(e);
+            }
+        }
+    }
+
+    private void falseCheckSub(Events ev){
+        eR.changeStateFalse(ev.getId());
+        if (!ev.getSubList().isEmpty()){
+            for (Events e : ev.getSubList()){
+                falseCheckSub(e);
             }
         }
     }
